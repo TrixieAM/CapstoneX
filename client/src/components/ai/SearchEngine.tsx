@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { searchQueryAtom, searchResultsAtom } from '@/store';
-import { Search, ExternalLink, ArrowRight } from 'lucide-react';
+import { Search, ExternalLink, BookOpen, GraduationCap } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -9,81 +9,93 @@ import { motion } from 'framer-motion';
 
 export function SearchEngine() {
   const [query, setQuery] = useAtom(searchQueryAtom);
-  const [results, setResults] = useAtom(searchResultsAtom);
-  const [searching, setSearching] = useState(false);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const [results, setResults] = useAtom(searchResultsAtom); // We'll use this for history or simulated local results
+  
+  const performSearch = (engine: 'google' | 'scholar' | 'wolfram') => {
     if (!query.trim()) return;
-    setSearching(true);
     
-    // Simulate Search Results
-    setTimeout(() => {
-      setResults([
-        { title: `Introduction to ${query}`, snippet: `Comprehensive guide covering the basics of ${query} and its applications in modern fields...`, source: 'Academic Journal' },
-        { title: `History of ${query}`, snippet: `Tracing the origins from early concepts to current state-of-the-art developments...`, source: 'Wiki Scholar' },
-        { title: `Recent Developments in ${query}`, snippet: `New findings suggest a paradigm shift in how we approach ${query}...`, source: 'Science Today' },
-      ]);
-      setSearching(false);
-    }, 1000);
+    let url = '';
+    switch(engine) {
+      case 'google':
+        url = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+        break;
+      case 'scholar':
+        url = `https://scholar.google.com/scholar?q=${encodeURIComponent(query)}`;
+        break;
+      case 'wolfram':
+        url = `https://www.wolframalpha.com/input?i=${encodeURIComponent(query)}`;
+        break;
+    }
+    
+    window.open(url, '_blank');
   };
 
   return (
     <div className="flex flex-col gap-4 h-full">
-      <form onSubmit={handleSearch} className="relative">
+      <div className="relative">
         <Input 
-          placeholder="Search academic sources..." 
+          placeholder="Enter research topic..." 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           className="pr-10"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') performSearch('google');
+          }}
         />
         <Button 
           size="icon" 
           variant="ghost" 
-          type="submit"
           className="absolute right-0 top-0 h-full w-10 text-muted-foreground hover:text-primary"
+          onClick={() => performSearch('google')}
         >
           <Search className="w-4 h-4" />
         </Button>
-      </form>
+      </div>
 
-      <ScrollArea className="flex-1 -mr-3 pr-3">
-        <div className="space-y-3">
-          {searching ? (
-             <div className="space-y-3">
-               {[1,2,3].map(i => (
-                 <div key={i} className="space-y-2 animate-pulse">
-                   <div className="h-4 bg-muted rounded w-3/4" />
-                   <div className="h-3 bg-muted/50 rounded w-full" />
-                   <div className="h-3 bg-muted/50 rounded w-5/6" />
-                 </div>
-               ))}
-             </div>
-          ) : results.length > 0 ? (
-            results.map((res, i) => (
-              <motion.div 
-                key={i}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="group p-3 rounded-lg border border-transparent hover:border-border hover:bg-white/50 dark:hover:bg-white/5 transition-all cursor-pointer"
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <h3 className="text-sm font-medium text-primary group-hover:underline decoration-primary/30 underline-offset-2">{res.title}</h3>
-                  <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-50" />
-                </div>
-                <p className="text-xs text-muted-foreground line-clamp-2 mb-1.5">{res.snippet}</p>
-                <span className="text-[10px] uppercase tracking-wider font-mono text-muted-foreground/70 bg-muted/50 px-1.5 py-0.5 rounded">{res.source}</span>
-              </motion.div>
-            ))
-          ) : (
-            <div className="text-center py-10 text-muted-foreground/40">
-              <Search className="w-8 h-8 mx-auto mb-2 opacity-20" />
-              <p className="text-xs">Enter a topic to search</p>
+      <div className="grid grid-cols-1 gap-3">
+        <div className="p-4 rounded-xl border border-border bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors cursor-pointer group" onClick={() => performSearch('scholar')}>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
+              <GraduationCap className="w-5 h-5" />
             </div>
-          )}
+            <div>
+              <h3 className="text-sm font-medium">Google Scholar</h3>
+              <p className="text-xs text-muted-foreground">Best for academic papers & citations</p>
+            </div>
+            <ExternalLink className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
+          </div>
         </div>
-      </ScrollArea>
+
+        <div className="p-4 rounded-xl border border-border bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors cursor-pointer group" onClick={() => performSearch('google')}>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-lg">
+              <Search className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-medium">Web Search</h3>
+              <p className="text-xs text-muted-foreground">General articles & documentation</p>
+            </div>
+            <ExternalLink className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
+          </div>
+        </div>
+
+        <div className="p-4 rounded-xl border border-border bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10 transition-colors cursor-pointer group" onClick={() => performSearch('wolfram')}>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg">
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-sm font-medium">WolframAlpha</h3>
+              <p className="text-xs text-muted-foreground">Computational knowledge & data</p>
+            </div>
+            <ExternalLink className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-50 transition-opacity" />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-auto p-4 bg-muted/20 rounded-lg text-xs text-muted-foreground text-center">
+        <p>Pro Tip: Use Google Scholar for peer-reviewed sources for your Chapter 2 (Literature Review).</p>
+      </div>
     </div>
   );
 }

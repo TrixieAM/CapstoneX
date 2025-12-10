@@ -25,13 +25,31 @@ export function ReferenceGenerator() {
     let ref = '';
     const { author, year, title, source, url } = formData;
     
-    // Simple mock logic for generation
+    // Real formatting logic
+    const formatAuthors = (auth: string, style: string) => {
+      if (!auth) return '';
+      // Simple heuristic for "First Last" -> "Last, F."
+      const names = auth.split(' and ').map(n => n.trim());
+      if (style === 'APA') {
+        return names.map(n => {
+          const parts = n.split(' ');
+          const last = parts.pop();
+          const first = parts[0];
+          return `${last}, ${first?.[0]}.`;
+        }).join(', ');
+      }
+      return auth; 
+    };
+
     if (type === 'APA') {
-      ref = `${author || 'Author, A. A.'} (${year || '2023'}). ${title || 'Title of work'}. ${source || 'Source Name'}.${url ? ` ${url}` : ''}`;
+      // APA 7: Author, A. A. (Year). Title of work. Source. URL
+      ref = `${formatAuthors(author, 'APA') || 'Author'} (${year || 'n.d.'}). ${title || 'Title'}. ${source ? `${source}.` : ''}${url ? ` ${url}` : ''}`;
     } else if (type === 'MLA') {
-      ref = `${author || 'Author, Last First'}. "${title || 'Title of Source'}." ${source || 'Container Title'}, ${year || '2023'}${url ? `, ${url}` : ''}.`;
+      // MLA 9: Author. "Title." Source, Year, URL.
+      ref = `${author || 'Author'}. "${title || 'Title'}." ${source ? `${source}, ` : ''}${year || 'no date'}${url ? `, ${url}` : ''}.`;
     } else if (type === 'Chicago') {
-      ref = `${author || 'Author, First Last'}. "${title || 'Title of Article'}." ${source || 'Journal Name'} (${year || '2023'}).${url ? ` ${url}` : ''}`;
+      // Chicago: Author. "Title." Source (Year). URL.
+      ref = `${author || 'Author'}. "${title || 'Title'}." ${source ? `${source}` : ''} (${year || 'n.d.'}).${url ? ` ${url}` : ''}`;
     }
     setResult(ref);
   };
