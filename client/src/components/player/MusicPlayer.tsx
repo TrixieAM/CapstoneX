@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ReactPlayer from 'react-player';
 import { useAtom } from 'jotai';
 import { youtubeUrlAtom, isPlayingAtom, volumeAtom } from '@/store';
@@ -6,15 +6,20 @@ import { Play, Pause, Volume2, VolumeX, Link as LinkIcon, AlertCircle } from 'lu
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export function MusicPlayer() {
   const [url, setUrl] = useAtom(youtubeUrlAtom);
   const [isPlaying, setIsPlaying] = useAtom(isPlayingAtom);
   const [volume, setVolume] = useAtom(volumeAtom);
   const [inputValue, setInputValue] = useState(url);
-  const [isExpanded, setIsExpanded] = useState(false);
   const [error, setError] = useState(false);
+  const [isReady, setIsReady] = useState(false);
+
+  // Sync local input with store url if it changes externally
+  useEffect(() => {
+    setInputValue(url);
+  }, [url]);
 
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -40,10 +45,10 @@ export function MusicPlayer() {
     >
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+          <span className={`w-1.5 h-1.5 rounded-full ${isPlaying ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
           Background Audio
         </h2>
-        {url && (
+        {url && isPlaying && (
           <div className="flex items-center gap-2">
              <div className="flex space-x-0.5 h-3 items-end">
                {[1,2,3].map(i => (
@@ -51,7 +56,7 @@ export function MusicPlayer() {
                    key={i}
                    className="w-1 bg-primary/60"
                    animate={{ 
-                     height: isPlaying ? [4, 12, 4] : 4,
+                     height: [4, 12, 4],
                    }}
                    transition={{
                      duration: 0.5 + i * 0.1,
@@ -72,17 +77,25 @@ export function MusicPlayer() {
              <p className="text-xs">Paste a YouTube link to start listening</p>
            </div>
          ) : (
-            <ReactPlayer
-              url={url}
-              playing={isPlaying}
-              volume={volume}
-              width="100%"
-              height="100%"
-              controls={false}
-              loop={true}
-              onError={() => setError(true)}
-              style={{ pointerEvents: 'none' }} 
-            />
+            <div className="w-full h-full pointer-events-none">
+              <ReactPlayer
+                url={url}
+                playing={isPlaying}
+                volume={volume}
+                width="100%"
+                height="100%"
+                controls={false}
+                loop={true}
+                onError={() => setError(true)}
+                onReady={() => setIsReady(true)}
+                // @ts-ignore - ReactPlayer types can be finicky with the url prop
+                config={{
+                  youtube: {
+                    playerVars: { showinfo: 0, controls: 0, modestbranding: 1 }
+                  }
+                }}
+              />
+            </div>
          )}
       </div>
 
