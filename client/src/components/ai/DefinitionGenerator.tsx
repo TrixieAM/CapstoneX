@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { definitionWordAtom, definitionResultAtom } from '@/store';
-import { BookOpen, Volume2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { BookOpen, Volume2, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
 
 export function DefinitionGenerator() {
   const [word, setWord] = useAtom(definitionWordAtom);
   const [def, setDef] = useAtom(definitionResultAtom);
   const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleDefine = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +43,15 @@ export function DefinitionGenerator() {
     }
   };
 
+  const copyToClipboard = () => {
+    if (def) {
+      const text = `${def.word} (${def.partOfSpeech}): ${def.definition}`;
+      navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4 h-full">
       <form onSubmit={handleDefine} className="relative">
@@ -70,7 +80,7 @@ export function DefinitionGenerator() {
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white/60 dark:bg-black/20 rounded-xl p-4 border border-white/20"
+            className="bg-white/60 dark:bg-black/20 rounded-xl p-4 border border-white/20 relative group"
           >
             <div className="flex items-baseline justify-between mb-2">
               <h3 className="text-xl font-serif font-medium">{def.word}</h3>
@@ -85,6 +95,15 @@ export function DefinitionGenerator() {
             <div className="pl-3 border-l-2 border-primary/20">
               <p className="text-xs text-muted-foreground italic">"{def.example}"</p>
             </div>
+            
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={copyToClipboard}
+            >
+              {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
+            </Button>
           </motion.div>
         ) : (
           <div className="text-center py-10 text-muted-foreground/40">

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAtom } from 'jotai';
 import { codeSnippetAtom, codeResultAtom } from '@/store';
-import { Code, Terminal, Play, Bug, Database } from 'lucide-react';
+import { Code, Terminal, Play, Bug, Database, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -12,6 +12,7 @@ export function CodeAssistant() {
   const [result, setResult] = useAtom(codeResultAtom);
   const [loading, setLoading] = useState(false);
   const [mode, setMode] = useState<'generate' | 'debug' | 'sql'>('generate');
+  const [copied, setCopied] = useState(false);
 
   const handleAction = () => {
     if (!snippet.trim()) return;
@@ -57,6 +58,14 @@ CREATE TABLE projects (
       setResult(output);
       setLoading(false);
     }, 1500);
+  };
+
+  const copyToClipboard = () => {
+    if (result) {
+      navigator.clipboard.writeText(result);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   return (
@@ -106,14 +115,24 @@ CREATE TABLE projects (
         <motion.div 
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
-          className="bg-zinc-950 text-zinc-50 rounded-lg p-3 overflow-hidden border border-zinc-800"
+          className="bg-zinc-950 text-zinc-50 rounded-lg p-3 overflow-hidden border border-zinc-800 relative group"
         >
           <div className="flex justify-between items-center mb-2 border-b border-zinc-800 pb-2">
             <span className="text-[10px] font-mono text-zinc-400">OUTPUT</span>
-            <Button variant="ghost" size="icon" className="h-4 w-4 text-zinc-400 hover:text-white" onClick={() => setResult(null)}>
-              <span className="sr-only">Clear</span>
-              &times;
-            </Button>
+            <div className="flex gap-1">
+              <Button 
+                 variant="ghost" 
+                 size="icon" 
+                 className="h-4 w-4 text-zinc-400 hover:text-white"
+                 onClick={copyToClipboard}
+              >
+                {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+              </Button>
+              <Button variant="ghost" size="icon" className="h-4 w-4 text-zinc-400 hover:text-white" onClick={() => setResult(null)}>
+                <span className="sr-only">Clear</span>
+                &times;
+              </Button>
+            </div>
           </div>
           <ScrollArea className="h-[150px]">
             <pre className="font-mono text-[10px] leading-relaxed">

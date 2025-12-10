@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Upload, FileText, Sparkles, Book, BookOpen, Loader2, CheckCircle2 } from 'lucide-react';
+import { Upload, FileText, Sparkles, Book, BookOpen, Loader2, CheckCircle2, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -9,6 +9,7 @@ export function DocumentProcessor() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any | null>(null);
+  const [copiedSection, setCopiedSection] = useState<string | null>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -38,6 +39,12 @@ export function DocumentProcessor() {
       });
       setLoading(false);
     }, 2500);
+  };
+
+  const copyToClipboard = (text: string, section: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedSection(section);
+    setTimeout(() => setCopiedSection(null), 2000);
   };
 
   return (
@@ -91,9 +98,19 @@ export function DocumentProcessor() {
 
             {/* Abstract Section */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-              <div className="flex items-center gap-2 mb-2 text-primary">
-                <Sparkles className="w-4 h-4" />
-                <h3 className="text-sm font-bold">Generated Abstract</h3>
+              <div className="flex items-center justify-between mb-2 text-primary">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" />
+                  <h3 className="text-sm font-bold">Generated Abstract</h3>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => copyToClipboard(result.abstract, 'abstract')}
+                >
+                  {copiedSection === 'abstract' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                </Button>
               </div>
               <div className="bg-white/50 dark:bg-white/5 p-3 rounded-lg border border-border text-sm leading-relaxed text-muted-foreground">
                 {result.abstract}
@@ -104,9 +121,19 @@ export function DocumentProcessor() {
 
             {/* References Section */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-              <div className="flex items-center gap-2 mb-2 text-primary">
-                <Book className="w-4 h-4" />
-                <h3 className="text-sm font-bold">Detected References</h3>
+              <div className="flex items-center justify-between mb-2 text-primary">
+                <div className="flex items-center gap-2">
+                  <Book className="w-4 h-4" />
+                  <h3 className="text-sm font-bold">Detected References</h3>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => copyToClipboard(result.references.join('\n'), 'refs')}
+                >
+                   {copiedSection === 'refs' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                </Button>
               </div>
               <div className="bg-white/50 dark:bg-white/5 p-3 rounded-lg border border-border space-y-2">
                 {result.references.map((ref: string, i: number) => (
@@ -122,9 +149,19 @@ export function DocumentProcessor() {
 
             {/* Definitions Section */}
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-              <div className="flex items-center gap-2 mb-2 text-primary">
-                <BookOpen className="w-4 h-4" />
-                <h3 className="text-sm font-bold">Key Terms Defined</h3>
+              <div className="flex items-center justify-between mb-2 text-primary">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-4 h-4" />
+                  <h3 className="text-sm font-bold">Key Terms Defined</h3>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => copyToClipboard(result.definitions.map((d: any) => `${d.term}: ${d.def}`).join('\n'), 'defs')}
+                >
+                   {copiedSection === 'defs' ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                </Button>
               </div>
               <div className="grid gap-2">
                 {result.definitions.map((item: any, i: number) => (

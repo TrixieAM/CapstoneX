@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
-import { Network, Download, Play, RefreshCw } from 'lucide-react';
+import { Network, Download, Play, RefreshCw, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
@@ -9,6 +9,7 @@ export function DiagramGenerator() {
   const [prompt, setPrompt] = useState('');
   const [loading, setLoading] = useState(false);
   const [diagramCode, setDiagramCode] = useState('');
+  const [copied, setCopied] = useState(false);
   const mermaidRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -25,6 +26,13 @@ export function DiagramGenerator() {
       mermaid.render('mermaid-svg', diagramCode).then((result) => {
         if (mermaidRef.current) {
           mermaidRef.current.innerHTML = result.svg;
+          // Fix SVG scaling to prevent 50/50 cut off issues
+          const svg = mermaidRef.current.querySelector('svg');
+          if (svg) {
+            svg.style.width = '100%';
+            svg.style.height = '100%';
+            svg.style.maxWidth = '100%';
+          }
         }
       });
     }
@@ -82,6 +90,14 @@ export function DiagramGenerator() {
     }, 1000);
   };
 
+  const copyCode = () => {
+    if (diagramCode) {
+      navigator.clipboard.writeText(diagramCode);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4 h-full">
       <div className="space-y-2 text-center py-4 bg-muted/20 rounded-xl border border-dashed border-muted-foreground/20">
@@ -102,16 +118,26 @@ export function DiagramGenerator() {
         </Button>
       </form>
 
-      <div className="flex-1 bg-white/50 dark:bg-black/20 rounded-lg border border-border flex items-center justify-center overflow-hidden relative p-4">
+      <div className="flex-1 bg-white/50 dark:bg-black/20 rounded-lg border border-border flex flex-col overflow-hidden relative p-4">
         {diagramCode ? (
-          <div className="w-full h-full overflow-auto flex items-center justify-center">
-             <div ref={mermaidRef} className="w-full" />
-             <Button variant="secondary" size="xs" className="absolute bottom-2 right-2 text-[10px]">
-               <Download className="w-3 h-3 mr-1" /> SVG
-             </Button>
-          </div>
+          <>
+            <div className="flex-1 w-full overflow-auto flex items-center justify-center">
+               <div ref={mermaidRef} className="w-full flex justify-center" />
+            </div>
+            <div className="absolute bottom-2 right-2 flex gap-2">
+              <Button 
+                variant="secondary" 
+                size="xs" 
+                className="text-[10px] shadow-sm border border-black/5"
+                onClick={copyCode}
+              >
+                {copied ? <Check className="w-3 h-3 mr-1" /> : <Copy className="w-3 h-3 mr-1" />}
+                Copy Mermaid
+              </Button>
+            </div>
+          </>
         ) : (
-          <div className="flex flex-col items-center gap-2 text-muted-foreground/40">
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-muted-foreground/40">
             <Network className="w-8 h-8" />
             <p className="text-xs">Diagram preview area</p>
           </div>
