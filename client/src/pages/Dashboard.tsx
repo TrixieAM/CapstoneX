@@ -2,8 +2,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { MusicPlayer } from '@/components/player/MusicPlayer';
 import { Notepad } from '@/components/workspace/Notepad';
 import { TaskList } from '@/components/workspace/TaskList';
-import { AbstractGenerator } from '@/components/ai/AbstractGenerator';
-import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
+import { ResearchTools } from '@/components/ai/ResearchTools';
 import { useState, useEffect } from 'react';
 
 export default function Dashboard() {
@@ -23,7 +22,7 @@ export default function Dashboard() {
           <div className="h-[250px]"><MusicPlayer /></div>
           <div className="h-[400px]"><TaskList /></div>
           <div className="h-[400px]"><Notepad /></div>
-          <div className="h-[500px]"><AbstractGenerator /></div>
+          <div className="h-[500px]"><ResearchTools /></div>
         </div>
       </AppShell>
     );
@@ -47,9 +46,9 @@ export default function Dashboard() {
           <Notepad />
         </div>
 
-        {/* Right Column: AI Tools */}
-        <div className="w-[320px]">
-          <AbstractGenerator />
+        {/* Right Column: AI Research Tools */}
+        <div className="w-[340px]">
+          <ResearchTools />
         </div>
       </div>
     </AppShell>

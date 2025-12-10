@@ -18,5 +18,18 @@ export const tasksAtom = atom<Task[]>([
   { id: '3', text: 'Read Chapter 4', completed: false },
 ]);
 
+// AI/Tools State
 export const aiLoadingAtom = atom<boolean>(false);
-export const aiResultAtom = atom<string | null>(null);
+export const aiResultAtom = atom<string | null>(null); // For Abstract
+
+export const referenceTypeAtom = atom<'APA' | 'MLA' | 'Chicago'>('APA');
+export const referenceResultAtom = atom<string | null>(null);
+
+export const grammarTextAtom = atom<string>('');
+export const grammarResultAtom = atom<string | null>(null);
+
+export const searchQueryAtom = atom<string>('');
+export const searchResultsAtom = atom<any[]>([]);
+
+export const definitionWordAtom = atom<string>('');
+export const definitionResultAtom = atom<any | null>(null);
