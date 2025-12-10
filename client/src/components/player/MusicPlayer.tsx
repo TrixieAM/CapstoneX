@@ -15,6 +15,7 @@ export function MusicPlayer() {
   const [inputValue, setInputValue] = useState(url);
   const [error, setError] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Sync local input with store url if it changes externally
   useEffect(() => {
@@ -31,6 +32,7 @@ export function MusicPlayer() {
       setUrl(inputValue);
       setIsPlaying(true);
       setError(false);
+      setIsLoading(true);
     } else {
       setError(true);
     }
@@ -77,7 +79,12 @@ export function MusicPlayer() {
              <p className="text-xs">Paste a YouTube link to start listening</p>
            </div>
          ) : (
-            <div className="w-full h-full">
+            <div className="w-full h-full relative">
+              {isLoading && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/10 backdrop-blur-[1px]">
+                  <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                </div>
+              )}
               <ReactPlayer
                 url={url}
                 playing={isPlaying}
@@ -90,17 +97,25 @@ export function MusicPlayer() {
                 onError={(e) => {
                   console.error("Player Error:", e);
                   setError(true);
+                  setIsLoading(false);
                 }}
-                onReady={() => setIsReady(true)}
+                onReady={() => {
+                   setIsReady(true);
+                   // Keep loading true until buffer ends or start happens
+                }}
+                onBuffer={() => setIsLoading(true)}
+                onBufferEnd={() => setIsLoading(false)}
+                onStart={() => setIsLoading(false)}
                 // @ts-ignore - ReactPlayer types can be finicky with the url prop
                 config={{
                   youtube: {
                     playerVars: { 
                       showinfo: 0, 
-                      controls: 1, // Enable controls so user can manually play/unmute if autoplay fails
+                      controls: 1, 
                       modestbranding: 1,
                       origin: window.location.origin,
-                      playsinline: 1
+                      playsinline: 1,
+                      autoplay: 1
                     }
                   }
                 }}
