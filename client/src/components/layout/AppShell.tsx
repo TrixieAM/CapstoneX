@@ -13,7 +13,7 @@ export function AppShell({ children }: AppShellProps) {
         className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-50 dark:opacity-20"
         style={{ backgroundImage: `url(${background})` }}
       />
-      
+
       {/* Gradient Overlay for smoothness */}
       <div className="absolute inset-0 z-0 bg-gradient-to-br from-background/80 via-background/40 to-background/80 backdrop-blur-[2px]" />
 
@@ -24,13 +24,17 @@ export function AppShell({ children }: AppShellProps) {
             <div className="h-6 w-6 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center">
               <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
             </div>
-            <h1 className="text-xl font-medium tracking-tight text-foreground/80">StudyFlow</h1>
+            {/* Title + Tagline */}
+            <div className="flex flex-col">
+              <h1 className="text-xl font-bold tracking-tight text-foreground/80">CapstoneX</h1>
+              <p className="text-sm text-foreground/60">Your smart companion for research and projects.</p>
+            </div>
           </div>
           <div className="text-sm text-muted-foreground font-mono">
             {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
           </div>
         </header>
-        
+
         <div className="flex-1 overflow-hidden p-4">
           {children}
         </div>
