@@ -77,21 +77,31 @@ export function MusicPlayer() {
              <p className="text-xs">Paste a YouTube link to start listening</p>
            </div>
          ) : (
-            <div className="w-full h-full pointer-events-none">
+            <div className="w-full h-full">
               <ReactPlayer
                 url={url}
                 playing={isPlaying}
                 volume={volume}
+                muted={false}
                 width="100%"
                 height="100%"
-                controls={false}
+                controls={true} 
                 loop={true}
-                onError={() => setError(true)}
+                onError={(e) => {
+                  console.error("Player Error:", e);
+                  setError(true);
+                }}
                 onReady={() => setIsReady(true)}
                 // @ts-ignore - ReactPlayer types can be finicky with the url prop
                 config={{
                   youtube: {
-                    playerVars: { showinfo: 0, controls: 0, modestbranding: 1 }
+                    playerVars: { 
+                      showinfo: 0, 
+                      controls: 1, // Enable controls so user can manually play/unmute if autoplay fails
+                      modestbranding: 1,
+                      origin: window.location.origin,
+                      playsinline: 1
+                    }
                   }
                 }}
               />
