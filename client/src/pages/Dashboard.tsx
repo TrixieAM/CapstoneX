@@ -4,6 +4,7 @@ import { Notepad } from '@/components/workspace/Notepad';
 import { TaskList } from '@/components/workspace/TaskList';
 import { ResearchTools } from '@/components/ai/ResearchTools';
 import { useState, useEffect } from 'react';
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 
 export default function Dashboard() {
   const [isMobile, setIsMobile] = useState(false);
@@ -30,26 +31,36 @@ export default function Dashboard() {
 
   return (
     <AppShell>
-      <div className="h-full w-full flex gap-4">
-        {/* Left Column: Player & Tasks */}
-        <div className="w-[300px] flex flex-col gap-4">
-          <div className="h-[40%]">
-            <MusicPlayer />
-          </div>
-          <div className="h-[60%]">
-            <TaskList />
-          </div>
-        </div>
+      <div className="h-full w-full">
+        <PanelGroup direction="horizontal" className="h-full">
+          {/* Left Column: Player & Tasks */}
+          <Panel defaultSize={20} minSize={15} className="flex flex-col gap-4 pr-2">
+             <div className="h-[40%]">
+               <MusicPlayer />
+             </div>
+             <div className="h-[60%]">
+               <TaskList />
+             </div>
+          </Panel>
+          
+          <PanelResizeHandle className="w-1 bg-transparent hover:bg-primary/20 transition-colors rounded-full mx-1" />
 
-        {/* Middle Column: Notepad (Main Focus) */}
-        <div className="flex-1">
-          <Notepad />
-        </div>
+          {/* Middle Column: Notepad (Main Focus) */}
+          <Panel defaultSize={45} minSize={30}>
+            <div className="h-full px-2">
+              <Notepad />
+            </div>
+          </Panel>
 
-        {/* Right Column: AI Research Tools */}
-        <div className="w-[340px]">
-          <ResearchTools />
-        </div>
+          <PanelResizeHandle className="w-1 bg-transparent hover:bg-primary/20 transition-colors rounded-full mx-1" />
+
+          {/* Right Column: AI Research Tools */}
+          <Panel defaultSize={35} minSize={25}>
+            <div className="h-full pl-2">
+              <ResearchTools />
+            </div>
+          </Panel>
+        </PanelGroup>
       </div>
     </AppShell>
   );
